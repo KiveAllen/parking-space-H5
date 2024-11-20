@@ -45,7 +45,7 @@ const onClickLeft = () => {
 };
 
 const onClickRight = () => {
-  router.push('/search')
+  router.push('/part')
 };
 
 </script>
