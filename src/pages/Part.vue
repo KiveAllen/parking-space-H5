@@ -4,23 +4,37 @@
     <van-dropdown-item v-model="value2" :options="option2"/>
   </van-dropdown-menu>
 
-  <van-card
-      v-for="(good, index) in goods"
-      :key="index"
-      :desc="good.desc"
-      :price="good.price"
-      :thumb="good.thumb"
-      :title="good.title"
+  <van-search
+      v-model="value"
+      show-action
+      label="地址"
+      placeholder="请输入前往的地址"
+      @search="onSearch"
   >
-    <template #tags>
-      <van-tag v-for="tag in good.tags" :key="tag" plain type="primary">{{ tag }}</van-tag>
+    <template #action>
+      <div @click="onClickButton">搜索</div>
     </template>
-    <template #footer>
-      <van-button v-for="button in good.buttons" :key="button.text" size="mini" @click="handleClick(button.action)">
-        {{ button.text }}
-      </van-button>
-    </template>
-  </van-card>
+  </van-search>
+
+  <div class="par-container">
+    <div class="part-list"
+         v-for="(good, index) in goods"
+         :key="index">
+      <div class="part-item">
+        <div class="part-item-name">
+          <div class="part-item-name-top">{{good.title}}</div>
+          <div class="part-item-name-bottom">{{good.price}}</div>
+        </div>
+        <div class="part-item-go">
+          <van-icon class="part-item-go-icon" name="share" />
+          <div class="part-item-go-min">{{good.desc}}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
 </template>
 
 
@@ -68,6 +82,30 @@ const goods = [
 
 
 <style scoped>
+.par-container{
+  background-color: #f7f8fa;
+  overflow-x: scroll;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+
+  .part-list {
+    width: 100%;
+    height: 100px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    margin-top: 10px;
+    padding: 20px;
+
+    .part-item{
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+
 
 
 </style>
