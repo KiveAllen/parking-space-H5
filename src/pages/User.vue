@@ -1,53 +1,37 @@
 <template>
-  <van-address-edit
-      :area-columns-placeholder="['请选择', '请选择', '请选择']"
-      :area-list="areaList"
-      :search-result="searchResult"
-      show-delete
-      show-search-result
-      show-set-default
-      @delete="onDelete"
-      @save="onSave"
-      @change-detail="onChangeDetail"
-  />
+  <van-image src="public/user.jpg"></van-image>
+  <van-cell-group>
+    <van-cell title="用户名称" value="小幽"/>
+    <van-cell title="手机号" value="18312614999"/>
+    <van-cell title="用户类型" value="用户"/>
+    <van-cell title="注册时间" value="2023-05-05"/>
+    <van-cell is-link title="编辑" to="/userUpdate"/>
+  </van-cell-group>
+
 
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue';
-import {showToast} from 'vant';
 
-const areaList = ref([]);
-const searchResult = ref([]);
 
-const onSave = () => showToast('save');
-const onDelete = () => showToast('delete');
-const onChangeDetail = (val: string) => {
-  if (val) {
-    searchResult.value = [
-      {
-        name: '黄龙万科中心',
-        address: '杭州市西湖区',
-      },
-    ];
-  } else {
-    searchResult.value = [];
-  }
-};
 
 </script>
 
 
 <style scoped>
-.box {
-  position: absolute;
+
+
+.van-image {
+  width: 100px;
+  height: 100px;
+  left: 50%;
+  transform: translate(-50%);
+
 }
 
-.container {
-  position: absolute;
-  width: 100%;
-  height: calc(100% - 90px);
-  z-index: -1;
+:deep(.van-image__img ) {
+  border-radius: 50%;
+
 }
 
 
