@@ -97,6 +97,7 @@
 
 import {ref} from 'vue'
 import {useCascaderAreaData} from '@vant/area-data';
+import {useRoute, useRouter} from "vue-router";
 
 
 const parkPhoto = ref('')
@@ -113,6 +114,15 @@ const areaShow = ref(false);
 const ChinaAreaData = useCascaderAreaData();
 const priceType = ref('');
 const priceTypePicker = ref(false);
+
+
+const route = useRoute();
+const router = useRouter();
+
+const part = ref({
+  id: route.query.id
+
+})
 
 const priceTypeList = [
   {text: '日', value: 1},

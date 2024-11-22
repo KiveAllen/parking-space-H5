@@ -1,32 +1,39 @@
 <template>
   <van-dropdown-menu>
-    <van-dropdown-item v-model="value1" :options="option1"/>
-    <van-dropdown-item v-model="value2" :options="option2"/>
+    <van-dropdown-item v-model="partValue" :options="optionPart"/>
+    <van-dropdown-item v-model="sortValue" :options="optionSort"/>
   </van-dropdown-menu>
 
   <van-search
-      v-model="value"
+      v-model="address"
       label="地址"
       placeholder="请输入前往的地址"
       show-action
       @search="onSearch"
   >
     <template #action>
-      <div @click="onClickButton">搜索</div>
+      <div @click="onSearch">搜索</div>
     </template>
   </van-search>
 
   <div class="part-container">
-    <div v-for="(good, index) in goods"
+    <div v-for="(part, index) in parts"
          :key="index"
          class="part-list">
       <div class="part-item">
         <div class="part-item-name">
-          <div class="part-item-name-top">{{ good.title }}</div>
+          <div class="part-item-name-top">{{ part.addressDescription }}</div>
           <div class="part-item-name-bottom">3.5元/小时</div>
         </div>
         <div class="part-item-go">
           <van-image class="part-item-go-img" src="public/go.svg"></van-image>
+          <!--          <van-button-->
+          <!--              size="small"-->
+          <!--              style="height: 80%"-->
+          <!--              type="primary"-->
+          <!--              round-->
+          <!--              @click="toUpdate(part.id)"-->
+          <!--          >修改车位</van-button>-->
           <div class="part-item-go-min">954m</div>
         </div>
       </div>
@@ -34,7 +41,7 @@
   </div>
 
   <div class="add-parking-space">
-    <van-button block round size="large" to="/partAdd" type="primary">+</van-button>
+    <van-button block round size="large" to="/part/add" type="primary">+</van-button>
   </div>
 
 
@@ -43,66 +50,67 @@
 
 <script lang="ts" setup>
 
-import {ref} from 'vue';
+import {useRouter} from "vue-router";
 
-const value1 = ref(0);
-const value2 = ref(0);
+import {onMounted, ref} from 'vue';
+import {listParkingSpaceByPageUsingPost} from "../api/parkingSpaceController.ts";
 
-const option1 = [
+const partValue = ref(0);
+const sortValue = ref(0);
+const address = ref('');
+const parts = ref([]);
+
+const optionPart = [
   {text: '全部车位', value: 0},
   {text: '我的车位', value: 1},
 ];
-const option2 = [
+const optionSort = [
   {text: '默认排序', value: 0},
   {text: '离我最近', value: 1},
 ];
 
-const goods = [
-  {
-    desc: "描述信息1",
-    price: "2.00",
-    thumb: "https://fastly.jsdelivr.net/npm/@vant/assets/ipad.jpeg",
-    title: "广东省惠州市惠州学院",
-    tags: ["标签1", "标签2"],
-    buttons: [
-      {text: "按钮1", action: "action1"},
-      {text: "按钮2", action: "action2"}
-    ]
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  },
-  {
-    title: "广东省广州市华南师范大学",
-  }
-]
+onMounted(async () => {
+  const res = await listParkingSpaceByPageUsingPost({
+    pageNum: 1,
+    pageSize: 100,
+  });
+  parts.value = res.data.records;
+})
+
+const router = useRouter();
+
+const toUpdate = (id: string) => {
+  router.push({
+    path: '/part/update',
+    query: {
+      id,
+    }
+  })
+}
+
+const onSearch = async () => {
+  const res = await listParkingSpaceByPageUsingPost({
+    pageNum: 1,
+    pageSize: 100,
+  });
+  parts.value = res.data.records;
+}
+
 </script>
 
 
 <style scoped>
 .part-container {
   background-color: #f7f8fa;
-  overflow-x: scroll;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   padding: 0 5px 5px;
+  -ms-overflow-style: none; /* IE 和 Edge */
+  scrollbar-width: none; /* Firefox */
+  overflow-x: scroll;
+
 
   .part-list {
     width: 100%;
@@ -126,8 +134,13 @@ const goods = [
         font-size: 18px;
         margin-top: 3px;
       }
+
     }
   }
+}
+
+.part-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari 和 Opera */
 }
 
 .add-parking-space {

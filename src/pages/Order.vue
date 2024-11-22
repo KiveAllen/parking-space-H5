@@ -19,7 +19,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 
@@ -72,6 +71,10 @@ const goods = [
 
 
 <style scoped>
+.van-dropdown-menu {
+
+  width: 100%;
+}
 .part-container {
   background-color: #f7f8fa;
   overflow-x: scroll;

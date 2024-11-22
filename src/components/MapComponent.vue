@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, onUnmounted} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import AMapLoader from "@amap/amap-jsapi-loader";
 
 let map = null;
@@ -14,13 +14,13 @@ onMounted(() => {
     plugins: ["AMap.Scale", "AMap.PlaceSearch", "AMap.ToolBar", "AMap.Driving"],
   })
       .then((AMap) => {
+        console.log("center", center)
         map = new AMap.Map("container", {
           // 设置地图容器id
           viewMode: "2D", // 是否为3D地图模式
           zoom: 13, // 初始化地图级别
-          center: [114.416456, 23.039525], // 初始化地图中心点位置
+          center: center.value
         });
-
         // 添加工具条
         var toolbar = new AMap.ToolBar(); //创建工具条插件实例
         map.addControl(toolbar); //添加工具条插件到页面
@@ -42,6 +42,24 @@ const markerContent = (value) => {
     </div>
     `
 }
+
+const center = ref([114.416456, 23.039525]);
+
+// const getLocation = () => {
+//   if ("geolocation" in navigator) {
+//     navigator.geolocation.getCurrentPosition(function (position) {
+//       latitude.value = position.coords.latitude;
+//       longitude.value = position.coords.longitude;
+//       center.value = [longitude.value, latitude.value];
+//       console.log(latitude.value, longitude.value)
+//
+//     }, function (error) {
+//       console.log(error);
+//     });
+//   } else {
+//     console.log("您的浏览器不支持地理定位");
+//   }
+// }
 
 // 设置经纬度
 const setLngLat = (lng, lat) => {
