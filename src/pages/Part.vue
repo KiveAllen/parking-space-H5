@@ -1,7 +1,7 @@
 <template>
   <van-dropdown-menu>
-    <van-dropdown-item v-model="partValue" :options="optionPart"/>
-    <van-dropdown-item v-model="sortValue" :options="optionSort"/>
+    <van-dropdown-item v-model="partValue" :options="optionPart" @change="getPartList"/>
+    <van-dropdown-item v-model="sortValue" :options="optionSort" @change="getPartList"/>
   </van-dropdown-menu>
 
   <van-search
@@ -9,10 +9,10 @@
       label="地址"
       placeholder="请输入前往的地址"
       show-action
-      @search="onSearch"
+      @search="getPartList"
   >
     <template #action>
-      <div @click="onSearch">搜索</div>
+      <div @click="getPartList">搜索</div>
     </template>
   </van-search>
 
@@ -90,6 +90,16 @@ onMounted(async () => {
   parts.value = res.data.records;
 })
 
+const getPartList = async () => {
+  const res = await listParkingSpaceByPageUsingPost({
+    pageNum: 1,
+    pageSize: 100,
+    userId: partValue.value === 1 ? userStore.userInfo.id : undefined,
+    searchText: address.value,
+  });
+  parts.value = res.data.records;
+}
+
 const router = useRouter();
 
 const toUpdate = (id: string) => {
@@ -99,14 +109,6 @@ const toUpdate = (id: string) => {
       id,
     }
   })
-}
-
-const onSearch = async () => {
-  const res = await listParkingSpaceByPageUsingPost({
-    pageNum: 1,
-    pageSize: 100,
-  });
-  parts.value = res.data.records;
 }
 
 </script>

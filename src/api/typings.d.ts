@@ -183,6 +183,7 @@ declare namespace API {
     pageSize?: number;
     priceType?: number;
     userId?: number;
+    searchText?: string;
   };
 
   type Reservation = {
