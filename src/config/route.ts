@@ -10,7 +10,8 @@ import PartDetail from "../pages/PartDetail.vue";
 import OrderDetail from "../pages/OrderDetail.vue";
 
 const routes = [
-    {path: '/', title: '主页', component: Index},
+    {path: '/', redirect: '/user/login'},
+    {path: '/index', title: '主页', component: Index},
     {path: '/part', title: '车位信息', component: Part},
     {path: '/part/detail', title: '车位详情', component: PartDetail},
     {path: '/part/add', title: '添加车位', component: PartAdd},

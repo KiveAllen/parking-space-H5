@@ -12,10 +12,10 @@
   <div id="content">
     <router-view/>
   </div>
-  <van-tabbar>
+  <van-tabbar v-model="active">
     <van-tabbar-item icon="home-o" name="index" to="/">主页</van-tabbar-item>
-    <van-tabbar-item icon="search" name="team" to="/part">车位</van-tabbar-item>
-    <van-tabbar-item icon="cart-o" name="team" to="/order">订单</van-tabbar-item>
+    <van-tabbar-item icon="search" name="part" to="/part">车位</van-tabbar-item>
+    <van-tabbar-item icon="cart-o" name="order" to="/order">订单</van-tabbar-item>
     <van-tabbar-item icon="contact-o" name="user" to="/user">个人</van-tabbar-item>
   </van-tabbar>
 </template>
@@ -28,6 +28,8 @@ import routes from "../config/route";
 const router = useRouter();
 const DEFAULT_TITLE = '私家车车位共享小程序';
 const title = ref(DEFAULT_TITLE);
+
+const active = ref(0);
 
 /**
  * 根据路由切换标题
