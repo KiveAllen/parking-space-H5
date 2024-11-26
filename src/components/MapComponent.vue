@@ -1,10 +1,10 @@
 <script setup>
-import {onMounted, onUnmounted, ref} from "vue";
+import {ref} from "vue";
 import AMapLoader from "@amap/amap-jsapi-loader";
 
 let map = null;
 
-onMounted(() => {
+const createMap = () => {
   window._AMapSecurityConfig = {
     securityJsCode: "fb26bd68e3810266239fa535b108f0f2",
   };
@@ -28,11 +28,11 @@ onMounted(() => {
       .catch((e) => {
         console.log(e);
       });
-});
+};
 
-onUnmounted(() => {
+const destroyMap = () => {
   map?.destroy();
-});
+};
 
 //点标记显示内容
 const markerContent = (value) => {
@@ -90,7 +90,9 @@ const clearMarker = () => {
 defineExpose({
   setLngLat,
   addMarker,
-  clearMarker
+  clearMarker,
+  destroyMap,
+  createMap
 });
 
 </script>

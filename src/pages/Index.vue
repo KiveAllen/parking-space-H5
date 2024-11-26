@@ -10,12 +10,31 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue';
-import MapComponent from "../components/MapComponent.vue";
-import {listParkingSpaceByPageUsingPost} from "../api/parkingSpaceController.ts";
+import {onMounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useUserStore} from '../store/user';
 import {getLocation} from "../api/mapWebApi.ts";
+import MapComponent from "../components/MapComponent.vue";
+import {showFailToast} from 'vant';
+import {listParkingSpaceByPageUsingPost} from "../api/parkingSpaceController.ts";
 
 const map = ref<InstanceType<typeof MapComponent> | null>(null);
+
+const userStore = useUserStore();
+const router = useRouter();
+
+
+onMounted(async () => {
+  console.log("onMounted")
+  // 获取用户信息
+  if (userStore.isLoggedIn) {
+    map.value?.createMap();
+  } else {
+    showFailToast("未登录，请先登录");
+    router.push("/user/login");
+  }
+
+})
 
 /**
  * 获取当前位置经纬度

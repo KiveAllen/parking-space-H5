@@ -92,6 +92,7 @@ const goods = [
 
   width: 100%;
 }
+
 .part-container {
   background-color: #f7f8fa;
   overflow-x: scroll;

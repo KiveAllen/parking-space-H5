@@ -7,9 +7,9 @@
         placeholder="请输入头像链接"
     />
     <van-field
-        v-model="username"
-        label="用户名"
-        placeholder="请输入用户名"
+        v-model="name"
+        label="名称"
+        placeholder="名称"
     />
     <van-field
         v-model="phone"
@@ -25,12 +25,44 @@
 
 <script lang="ts" setup>
 
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
+import {useUserStore} from "../store/user.ts";
+import {getLoginUserUsingGet, updateUserUsingPost} from "../api/userController.ts";
+import {useRouter} from "vue-router";
+import {showFailToast, showSuccessToast} from 'vant'
 
 const avatar = ref('')
-const username = ref('')
+const name = ref('')
 const phone = ref('')
 
+const userStore = useUserStore();
+const router = useRouter();
+
+async function submit() {
+  const res = await updateUserUsingPost({
+    avatar: avatar.value,
+    name: name.value,
+    phone: phone.value,
+    id: userStore.userInfo.id
+  });
+  if (res.data) {
+    showSuccessToast('修改成功')
+    const user = await getLoginUserUsingGet();
+    userStore.updateUserInfo(user.data)
+    router.push('/user')
+  } else {
+    showFailToast('修改失败')
+  }
+
+}
+
+onMounted(async () => {
+  const user = await getLoginUserUsingGet();
+  avatar.value = user.data.avatar
+  name.value = user.data.name
+  phone.value = user.data.phone
+  userStore.updateUserInfo(user.data)
+})
 
 </script>
 
