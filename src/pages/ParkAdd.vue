@@ -20,7 +20,7 @@
         placeholder="例如：演达大道46号"
     />
     <van-field
-        v-model="partNumber"
+        v-model="parkNumber"
         label="停车场区域号"
         placeholder="例如：F区23号"
     />
@@ -50,6 +50,12 @@
         placeholder="请选择共享结束日期"
         readonly
         @click="dateEndShow = true"
+    />
+
+    <van-field
+        v-model="price"
+        label="价格"
+        placeholder="例如：12.00"
     />
 
     <!--  弹窗  -->
@@ -85,8 +91,6 @@
           @confirm="confirmEndDate"
       />
     </van-popup>
-
-
   </van-cell-group>
 
   <van-button round type="success" @click="savePart">保存</van-button>
@@ -97,12 +101,18 @@
 
 import {ref} from 'vue'
 import {useCascaderAreaData} from '@vant/area-data';
+import {addParkingSpaceUsingPost} from "../api/parkingSpaceController.ts";
+import {showFailToast, showSuccessToast} from 'vant';
+import {useRouter} from "vue-router";
+import {getLocation} from "../api/mapWebApi.ts";
 
+const router = useRouter();
 
 const parkPhoto = ref('')
 const area = ref('')
 const address = ref('')
-const partNumber = ref('')
+const parkNumber = ref('')
+const price = ref()
 const customStartDate = ref(['8', '00']);
 const startDate = ref('');
 const customEndDate = ref(['12', '00']);
@@ -111,7 +121,7 @@ const dateStartShow = ref(false);
 const dateEndShow = ref(false);
 const areaShow = ref(false);
 const ChinaAreaData = useCascaderAreaData();
-const priceType = ref('');
+const priceType = ref();
 const priceTypePicker = ref(false);
 
 const priceTypeList = [
@@ -119,7 +129,6 @@ const priceTypeList = [
   {text: '周', value: 2},
   {text: '自定义', value: 3}
 ];
-
 
 const confirmAreaData = ({selectedOptions}) => {
   areaShow.value = false;
@@ -135,9 +144,57 @@ const confirmStartDate = () => {
   dateStartShow.value = false;
   startDate.value = customStartDate.value.join(':');
 }
+
 const confirmEndDate = () => {
   dateEndShow.value = false;
   endDate.value = customEndDate.value.join(':');
+}
+
+const savePart = async () => {
+  const currentDate = new Date();
+  // 格式化 startDate
+  const formattedStartDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${startDate.value}:00`;
+  // 格式化 endDate
+  const formattedEndDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${endDate.value}:00`;
+
+  console.log("formattedStartDate", formattedStartDate)
+  console.log("formattedEndDate", formattedEndDate)
+
+  // 获取地址描述
+  const addressDescription = area.value + address.value;
+
+  // 格式化type
+  const formattedType = priceType.value == '日' ? 1 : priceType.value == '周' ? 2 : 3;
+
+
+  const location = await getLocation(addressDescription);
+
+  if (!location) {
+    showFailToast('地址错误，请重新输入地址');
+    return
+  }
+
+  const latitude = location.latitude
+  const longitude = location.longitude
+
+  const res = await addParkingSpaceUsingPost({
+    parkPhoto: parkPhoto.value,
+    addressDescription: addressDescription,
+    parkNumber: parkNumber.value,
+    priceType: formattedType,
+    customTimeStart: startDate.value != "" ? formattedStartDate : undefined,
+    customTimeEnd: endDate.value != "" ? formattedEndDate : undefined,
+    latitude: latitude,
+    longitude: longitude,
+    price: price.value,
+  });
+  if (res.data) {
+    showSuccessToast('车位添加成功');
+    router.push('/park')
+  } else {
+    showFailToast('车位添加失败');
+  }
+
 }
 
 </script>
@@ -147,18 +204,14 @@ const confirmEndDate = () => {
 
 
 .van-image {
-  margin-top: 10px;
-  width: 100px;
-  height: 100px;
+  margin-top: 20px;
+  width: 90%;
+  height: 250px;
   left: 50%;
   transform: translate(-50%);
 
 }
 
-:deep(.van-image__img ) {
-  border-radius: 50%;
-
-}
 
 .van-button {
   margin-top: 20px;

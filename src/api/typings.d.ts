@@ -89,7 +89,7 @@ declare namespace API {
     spaceId?: number;
   };
 
-  type getParkingSpaceVOByIdUsingGETParams = {
+    type getParkingSpaceByIdUsingGETParams = {
     /** id */
     id?: number;
   };
@@ -158,8 +158,6 @@ declare namespace API {
 
   type ParkingSpace = {
     addressDescription?: string;
-    availableTimeEnd?: string;
-    availableTimeStart?: string;
     createTime?: string;
     customTimeEnd?: string;
     customTimeStart?: string;
@@ -171,6 +169,9 @@ declare namespace API {
     priceType?: number;
     updateTime?: string;
     userId?: number;
+      parkPhoto?: string;
+      parkNumber?: string;
+      distance?: number;
   };
 
   type ParkingSpaceQueryRequest = {
@@ -184,9 +185,12 @@ declare namespace API {
     priceType?: number;
     userId?: number;
     searchText?: string;
+      longitude?: number;
+      latitude?: number;
   };
 
   type Reservation = {
+      name?: string
     createTime?: string;
     id?: number;
     ownerId?: number;

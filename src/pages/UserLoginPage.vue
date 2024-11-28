@@ -75,12 +75,10 @@ const onSubmit = async () => {
   });
   if (res.data) {
     showSuccessToast("注册&登录成功");
-
     // 获取用户信息
     const user = await getLoginUserUsingGet();
     userStore.login(user.data)
-
-    router.back();
+    router.push("/index");
   }
 };
 

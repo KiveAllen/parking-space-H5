@@ -33,7 +33,7 @@ export async function deleteReservationUsingPost(
 }
 
 /** getReservationVOById GET /api/reservation/get */
-export async function getReservationVoByIdUsingGet(
+export async function getReservationByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getReservationVOByIdUsingGETParams,
   options?: { [key: string]: any }

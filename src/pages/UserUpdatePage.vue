@@ -48,7 +48,7 @@ async function submit() {
   if (res.data) {
     showSuccessToast('修改成功')
     const user = await getLoginUserUsingGet();
-    userStore.updateUserInfo(user.data)
+    userStore.login(user.data)
     router.push('/user')
   } else {
     showFailToast('修改失败')
@@ -61,7 +61,7 @@ onMounted(async () => {
   avatar.value = user.data.avatar
   name.value = user.data.name
   phone.value = user.data.phone
-  userStore.updateUserInfo(user.data)
+  userStore.login(user.data)
 })
 
 </script>

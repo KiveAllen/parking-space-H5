@@ -1,6 +1,6 @@
 <template>
   <van-image :src="avatar"></van-image>
-  <van-cell-group>
+  <van-cell-group inset>
     <van-cell :label="name" title="用户名称"/>
     <van-cell :label="phone" title="手机号"/>
     <van-cell :label="roleType" title="用户类型"/>

@@ -33,9 +33,9 @@ export async function deleteParkingSpaceUsingPost(
 }
 
 /** getParkingSpaceVOById GET /api/parkingSpace/get */
-export async function getParkingSpaceVoByIdUsingGet(
+export async function getParkingSpaceByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getParkingSpaceVOByIdUsingGETParams,
+  params: API.getParkingSpaceByIdUsingGETParams,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseParkingSpace_>("/api/parkingSpace/get", {

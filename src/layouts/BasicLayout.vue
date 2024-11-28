@@ -12,9 +12,9 @@
   <div id="content">
     <router-view/>
   </div>
-  <van-tabbar v-model="active">
-    <van-tabbar-item icon="home-o" name="index" to="/">主页</van-tabbar-item>
-    <van-tabbar-item icon="search" name="part" to="/part">车位</van-tabbar-item>
+  <van-tabbar>
+    <van-tabbar-item icon="home-o" name="index" to="/index">主页</van-tabbar-item>
+    <van-tabbar-item icon="search" name="park" to="/park">车位</van-tabbar-item>
     <van-tabbar-item icon="cart-o" name="order" to="/order">订单</van-tabbar-item>
     <van-tabbar-item icon="contact-o" name="user" to="/user">个人</van-tabbar-item>
   </van-tabbar>
@@ -47,7 +47,7 @@ const onClickLeft = () => {
 };
 
 const onClickRight = () => {
-  router.push('/part')
+  router.push('/park')
 };
 
 </script>

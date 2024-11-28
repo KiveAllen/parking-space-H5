@@ -8,7 +8,8 @@ export interface UserStoreState {
 export const useUserStore = defineStore('user', {
     state: (): UserStoreState => ({
         isLoggedIn: false,
-        userInfo: null
+        userInfo: null,
+
     }),
     actions: {
         login(userInfo: any) {
@@ -18,9 +19,6 @@ export const useUserStore = defineStore('user', {
         logout() {
             this.isLoggedIn = false;
             this.userInfo = null;
-        },
-        updateUserInfo(userInfo: any) {
-            this.userInfo = userInfo;
         }
     }
 });

@@ -4,20 +4,21 @@
     <van-dropdown-item v-model="statusValue" :options="orderStatus" @change="getOrderList"/>
   </van-dropdown-menu>
 
-  <div class="part-container">
+  <div class="order-container">
     <div v-for="(order, index) in orders"
          :key="index"
-         class="part-list">
-      <div class="part-item">
-        <div class="part-item-name">
-          <div class="part-item-name-top">{{ order.name }}</div>
-          <div class="part-item-name-bottom">￥{{ order.totalCost }}</div>
+         class="order-list">
+      <div class="order-item">
+        <div class="order-item-name">
+          <div class="order-item-name-top">{{ order.name }}</div>
+          <div class="order-item-name-bottom">￥{{ order.totalCost }}</div>
         </div>
-        <div class="part-item-time">
-          <div class="part-item-time-name">
+        <div class="order-item-time">
+          <div class="order-item-time-name">
             {{ getOrderStatus(order.reservationStatus) }}
           </div>
-          <van-Button class="part-item-time-time" round size="small" type="primary">查看</van-Button>
+          <van-Button class="order-item-time-time" round size="small" type="primary" @click="goDetail(order.id)">查看
+          </van-Button>
         </div>
       </div>
     </div>
@@ -42,10 +43,19 @@ const statusValue = ref(0);
 const router = useRouter();
 const userStore = useUserStore();
 
+const goDetail = (id) => {
+  router.push({
+    path: '/order/detail',
+    query: {
+      id
+    }
+  })
+}
+
 onMounted(async () => {
   const user = await getLoginUserUsingGet();
   if (user.data) {
-    userStore.updateUserInfo(user.data)
+    userStore.login(user.data)
   } else {
     showFailToast('获取用户信息失败')
     router.push('/user/login')
@@ -76,9 +86,9 @@ const getOrderStatus = (status: number) => {
     case 1:
       return '已预定';
     case 2:
-      return '已完成';
-    case 3:
       return '已取消';
+    case 3:
+      return '已完成';
     default:
       return '全部订单';
   }
@@ -91,8 +101,8 @@ const orderType = [
 const orderStatus = [
   {text: '全部订单', value: 0},
   {text: '已预定', value: 1},
-  {text: '已完成', value: 2},
-  {text: '已取消', value: 3},
+  {text: '已取消', value: 2},
+  {text: '已完成', value: 3},
 ];
 
 const orders = ref([])
@@ -104,7 +114,7 @@ const orders = ref([])
   width: 100%;
 }
 
-.part-container {
+.order-container {
   background-color: #f7f8fa;
   overflow-x: scroll;
   display: flex;
@@ -113,7 +123,7 @@ const orders = ref([])
   align-items: center;
   padding: 0 5px 5px;
 
-  .part-list {
+  .order-list {
     width: 100%;
     height: 50px;
     border-radius: 8px;
@@ -121,30 +131,30 @@ const orders = ref([])
     margin-top: 10px;
     padding: 20px;
 
-    .part-item {
+    .order-item {
       display: flex;
       justify-content: space-between;
 
-      .part-item-name-top {
+      .order-item-name-top {
         width: 100%;
         height: 32px;
         font-size: 18px;
         color: #1296db;
       }
 
-      .part-item-name-bottom {
+      .order-item-name-bottom {
         font-size: 18px;
         margin-top: 5px;
       }
 
-      .part-item-time-name {
+      .order-item-time-name {
         width: 100%;
         height: 32px;
         color: #000000;
         text-align: right;
       }
 
-      .part-item-time-time {
+      .order-item-time-time {
         font-size: 12px;
         color: #ffffff;
         text-align: right;

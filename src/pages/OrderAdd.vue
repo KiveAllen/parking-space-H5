@@ -2,55 +2,41 @@
   <van-image :src=orderPhoto></van-image>
   <van-cell-group>
     <van-cell
+        :value="address"
+        title="名称"
+    />
+    <van-cell
         :value="orderNumber"
         title="停车场区域号"
     />
     <van-cell
-        :value="startDate"
-        title="起始日期"
+        :value="priceType"
+        title="价格设置类型"
     />
     <van-cell
+        v-if="priceType == '自定义'"
+        :value="startDate"
+        title="起始时间"
+
+    />
+    <van-cell
+        v-if="priceType == '自定义'"
         :value="endDate"
-        title="结束日期"
+        title="结束时间"
     />
     <van-cell
         :value="price"
-        title="总金额"
+        title="单价"
     />
-    <van-cell title="订单状态">
-      <template #right-icon>
-        <van-tag v-if="reservationStatus==1" type="warning">已预订</van-tag>
-        <van-tag v-if="reservationStatus==2" type="danger">已取消</van-tag>
-        <van-tag v-if="reservationStatus==3" type="success">已完成</van-tag>
-      </template>
+    <van-cell
+        title="数量"
+    >
+      <van-stepper v-model="orderStepper" max="7" min="1"/>
     </van-cell>
-    <!--    <van-cell-->
-    <!--        title="评分"-->
-    <!--        v-if="reservationStatus==3"-->
-    <!--    >-->
-    <!--      <van-rate v-model="starValue"/>-->
-    <!--    </van-cell>-->
-    <!--    <van-field-->
-    <!--        v-model="message"-->
-    <!--        autosize-->
-    <!--        label="评论"-->
-    <!--        maxlength="50"-->
-    <!--        placeholder="评论"-->
-    <!--        rows="1"-->
-    <!--        show-word-limit-->
-    <!--        type="textarea"-->
-    <!--        v-if="reservationStatus==3"-->
-    <!--    />-->
   </van-cell-group>
-  <van-row v-if="reservationStatus==1">
-    <van-col span="12">
-      <van-button round type="warning" @click="toUpdate(2)">取消订单</van-button>
-    </van-col>
-    <van-col span="12">
-      <van-button round type="success" @click="toUpdate(3)">完成订单</van-button>
-    </van-col>
-  </van-row>
-  <van-button v-if="reservationStatus==3" round type="primary" @click="feedback">确定评论</van-button>
+
+  <van-submit-bar :price="orderStepper*price*100" button-text="提交订单" @submit="onSubmit"/>
+
 </template>
 
 <script lang="ts" setup>
@@ -58,15 +44,13 @@
 import {onMounted, ref} from 'vue'
 import {getParkingSpaceByIdUsingGet} from "../api/parkingSpaceController.ts";
 import {useRoute, useRouter} from "vue-router";
-import {addReservationUsingPost, getReservationByIdUsingGet} from "../api/reservationController.ts";
+import {addReservationUsingPost} from "../api/reservationController.ts";
 import {format, startOfDay} from 'date-fns';
 import {showFailToast, showSuccessToast} from "vant";
 
 const router = useRouter();
 const route = useRoute();
 
-const starValue = ref(3);
-const message = ref();
 const orderStepper = ref(1);
 const orderPhoto = ref('')
 const area = ref('')
@@ -78,33 +62,11 @@ const endDate = ref('');
 const priceType = ref();
 const userId = ref();
 
-const reservationStatus = ref();
-
-const feedback = ref();
-
 
 onMounted(async () => {
-  const reservation = await getReservationByIdUsingGet({
+  const res = await getParkingSpaceByIdUsingGet({
     id: route.query.id
   });
-
-  const res = await getParkingSpaceByIdUsingGet({
-    id: reservation.data.spaceId
-  });
-
-
-  if (reservation == null) {
-    showFailToast('订单不存在');
-    router.push("/order")
-    return
-  }
-
-  reservationStatus.value = reservation.data.reservationStatus
-  const first = reservation.data.reservationTimeStart.split(' ')[0];
-  startDate.value = first
-  const second = reservation.data.reservationTimeEnd.split(' ')[0];
-  endDate.value = second
-
   console.log('res', res)
   if (res.data) {
     const areaString = res.data.addressDescription.split('区')[0] + `区`;
@@ -114,6 +76,13 @@ onMounted(async () => {
     orderNumber.value = res.data.parkNumber;
     price.value = res.data.price;
     priceType.value = res.data.priceType == 1 ? '日' : res.data.priceType == 2 ? '周' : '自定义';
+
+    if (res.data.customTimeStart && res.data.customTimeEnd) {
+      const first = res.data.customTimeStart.split(' ')[1];
+      startDate.value = first
+      const second = res.data.customTimeEnd.split(' ')[1];
+      endDate.value = second
+    }
     userId.value = res.data.userId;
   }
 })
