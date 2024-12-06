@@ -24,23 +24,28 @@
         <van-tag v-if="reservationStatus==3" type="success">已完成</van-tag>
       </template>
     </van-cell>
-    <!--    <van-cell-->
-    <!--        title="评分"-->
-    <!--        v-if="reservationStatus==3"-->
-    <!--    >-->
-    <!--      <van-rate v-model="starValue"/>-->
-    <!--    </van-cell>-->
-    <!--    <van-field-->
-    <!--        v-model="message"-->
-    <!--        autosize-->
-    <!--        label="评论"-->
-    <!--        maxlength="50"-->
-    <!--        placeholder="评论"-->
-    <!--        rows="1"-->
-    <!--        show-word-limit-->
-    <!--        type="textarea"-->
-    <!--        v-if="reservationStatus==3"-->
-    <!--    />-->
+    <van-cell
+        v-if="reservationStatus==3"
+        title="评分"
+    >
+      <van-rate v-model="starValue"/>
+    </van-cell>
+    <van-field
+        v-if="reservationStatus==3 && showFeedback"
+        v-model="message"
+        autosize
+        label="评论"
+        maxlength="50"
+        placeholder="评论"
+        rows="1"
+        show-word-limit
+        type="textarea"
+    />
+    <van-cell
+        v-if="reservationStatus==3 && !showFeedback"
+        :value="message"
+        title="评论"
+    />
   </van-cell-group>
   <van-row v-if="reservationStatus==1">
     <van-col span="12">
@@ -50,7 +55,7 @@
       <van-button round type="success" @click="toUpdate(3)">完成订单</van-button>
     </van-col>
   </van-row>
-  <van-button v-if="reservationStatus==3" round type="primary" @click="feedback">确定评论</van-button>
+  <van-button v-if="reservationStatus==3 && showFeedback" round type="primary" @click="feedback">确定评论</van-button>
 </template>
 
 <script lang="ts" setup>
@@ -58,16 +63,15 @@
 import {onMounted, ref} from 'vue'
 import {getParkingSpaceByIdUsingGet} from "../api/parkingSpaceController.ts";
 import {useRoute, useRouter} from "vue-router";
-import {addReservationUsingPost, getReservationByIdUsingGet} from "../api/reservationController.ts";
-import {format, startOfDay} from 'date-fns';
+import {getReservationByIdUsingGet, updateReservationUsingPost} from "../api/reservationController.ts";
 import {showFailToast, showSuccessToast} from "vant";
+import {addFeedbackUsingPost, getFeedbackByIdUsingGET} from "../api/feedbackController.ts";
 
 const router = useRouter();
 const route = useRoute();
 
 const starValue = ref(3);
 const message = ref();
-const orderStepper = ref(1);
 const orderPhoto = ref('')
 const area = ref('')
 const address = ref('')
@@ -77,10 +81,44 @@ const startDate = ref('');
 const endDate = ref('');
 const priceType = ref();
 const userId = ref();
+const spaceId = ref();
+
+const showFeedback = ref(true);
 
 const reservationStatus = ref();
 
-const feedback = ref();
+const feedback = async () => {
+  const res = await addFeedbackUsingPost({
+    commentText: message.value,
+    commentImage: '',
+    rating: starValue.value,
+    spaceId: spaceId.value,
+    reservationId: route.query.id
+  });
+  if (res.data) {
+    showSuccessToast('评论成功!');
+    router.push("/order")
+    return
+  }
+}
+
+const toUpdate = async (status: number) => {
+  const res = await updateReservationUsingPost({
+    id: route.query.id,
+    reservationStatus: status,
+  });
+  if (res.data && status == 2) {
+    showSuccessToast('取消成功!');
+    router.push("/order")
+    return
+  }
+  if (res.data && status == 3) {
+    showSuccessToast('订单已完成!');
+    router.push("/order")
+    return
+  }
+  showFailToast('操作失败!');
+}
 
 
 onMounted(async () => {
@@ -91,6 +129,18 @@ onMounted(async () => {
   const res = await getParkingSpaceByIdUsingGet({
     id: reservation.data.spaceId
   });
+
+  const feedbackData = await getFeedbackByIdUsingGET({
+    reservationId: route.query.id
+  });
+
+  console.log('feedbackData', feedbackData)
+  if (feedbackData.data) {
+    console.log('feedbackData.data', feedbackData.data)
+    showFeedback.value = false;
+    starValue.value = feedbackData.data.rating;
+    message.value = feedbackData.data.commentText;
+  }
 
 
   if (reservation == null) {
@@ -115,42 +165,10 @@ onMounted(async () => {
     price.value = res.data.price;
     priceType.value = res.data.priceType == 1 ? '日' : res.data.priceType == 2 ? '周' : '自定义';
     userId.value = res.data.userId;
+    spaceId.value = res.data.id;
   }
 })
 
-
-const onSubmit = async () => {
-
-  const startTime = format(startOfDay(new Date()), 'yyyy-MM-dd HH:mm:ss');
-  // 通过类型判断endtime是否为自定义
-  let endTime = '';
-  if (priceType.value == '周') {
-    // startTime添加 （周 * orderStepper）天
-    endTime = format(new Date(startOfDay(new Date()).getTime() + 7 * 24 * 60 * 60 * 1000 * orderStepper.value)
-        , 'yyyy-MM-dd HH:mm:ss');
-  } else {
-    endTime = format(new Date(startOfDay(new Date()).getTime() + 24 * 60 * 60 * 1000 * orderStepper.value)
-        , 'yyyy-MM-dd HH:mm:ss');
-  }
-  console.log(startTime, endTime)
-  const res = await addReservationUsingPost({
-    name: address.value,
-    spaceId: parseInt(route.query.id),
-    reservationStatus: 1,
-    reservationTimeStart: startTime,
-    reservationTimeEnd: endTime,
-    totalCost: orderStepper.value * price.value,
-    ownerId: userId.value,
-  });
-
-  if (res.data) {
-    showSuccessToast('预定车位成功');
-    router.push("/park")
-  } else {
-    showFailToast('预定车位失败');
-  }
-
-}
 
 </script>
 
