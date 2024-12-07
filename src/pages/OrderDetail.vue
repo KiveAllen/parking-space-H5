@@ -2,6 +2,10 @@
   <van-image :src=orderPhoto></van-image>
   <van-cell-group>
     <van-cell
+        :value="address"
+        title="地点"
+    />
+    <van-cell
         :value="orderNumber"
         title="停车场区域号"
     />
@@ -105,6 +109,7 @@ const feedback = async () => {
 const toUpdate = async (status: number) => {
   const res = await updateReservationUsingPost({
     id: route.query.id,
+    spaceId: spaceId.value,
     reservationStatus: status,
   });
   if (res.data && status == 2) {

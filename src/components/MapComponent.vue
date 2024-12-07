@@ -83,12 +83,15 @@ const addMarker = (lng, lat, value) => {
   });
   marker.on("click", (e) => {
     console.log(e);
-    router.push({
-      path: '/park/detail',
-      query: {
-        id: value,
-      }
-    })
+    setTimeout(async () => {
+      await router.push({
+        path: '/park/detail',
+        query: {
+          id: value,
+        }
+      })
+    }, 500)
+
 
   });
   map?.add(marker);

@@ -34,6 +34,36 @@
   <van-button v-if="userId==userStore.userInfo.id" round type="primary" @click="toUpdate">修改</van-button>
   <van-button v-else round type="primary" @click="toOrder">预约</van-button>
 
+
+  <div class="park-detail-name" v-if="feedbackListData.length"
+       style="font-size: 18px; padding: 20px 20px 0 20px"
+  >评论区
+  </div>
+
+  <div v-for="(feedback, index) in feedbackListData"
+       :key="index"
+       class="comment-list">
+
+    <van-row>
+      <van-col span="4">
+        <van-image class="comment-user-avatar" :src="feedback.avatar"></van-image>
+      </van-col>
+      <van-col span="20">
+        <div class="comment-user-name">{{ feedback.name }}</div>
+        <div class="comment-content">{{ feedback.commentText }}</div>
+      </van-col>
+    </van-row>
+    <van-row justify="space-between">
+      <van-col span="12">
+        <div class="comment-user-time">{{ formattedCreateTime(feedback.createTime) }}</div>
+      </van-col>
+      <van-col span="8">
+        <van-rate class="comment-content-rating" v-model="feedback.rating" readonly />
+      </van-col>
+    </van-row>
+
+  </div>
+
 </template>
 
 <script lang="ts" setup>
@@ -42,6 +72,8 @@ import {onMounted, ref} from 'vue'
 import {getParkingSpaceByIdUsingGet} from "../api/parkingSpaceController.ts";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "../store/user.ts";
+import {listFeedbackByPageUsingPost} from "../api/feedbackController.ts";
+import {format} from "date-fns";
 
 const route = useRoute();
 const router = useRouter();
@@ -56,13 +88,31 @@ const startDate = ref('');
 const endDate = ref('');
 const priceType = ref();
 const userId = ref();
+const feedbackListData = ref([]);
+
+const formattedCreateTime = (createTime: string): string => {
+  return format(new Date(createTime), 'yyyy-MM-dd HH:mm:ss');
+};
 
 
 onMounted(async () => {
   const res = await getParkingSpaceByIdUsingGet({
     id: route.query.id
   });
-  console.log('res', res)
+
+  const feedbackList = await listFeedbackByPageUsingPost({
+    pageNum: 1,
+    pageSize: 100,
+    spaceId: route.query.id
+  });
+
+  console.log('feedbackList', feedbackList)
+
+  if (feedbackList.data) {
+    feedbackListData.value = feedbackList.data.records;
+  }
+
+
   if (res.data) {
     const areaString = res.data.addressDescription.split('区')[0] + `区`;
     parkPhoto.value = res.data.parkPhoto;
@@ -116,7 +166,6 @@ const toOrder = () => {
 
 }
 
-
 .van-button {
   margin-top: 20px;
   left: 50%;
@@ -124,5 +173,32 @@ const toOrder = () => {
   transform: translate(-50%);
 }
 
+.comment-list {
+  border-bottom: 1px solid #ebedf0;
+}
+
+.comment-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.comment-user-name {
+  font-size: 14px;
+  margin-top: 18px;
+  margin-bottom: 5px;
+  color: gray;
+}
+
+.comment-content {
+  font-size: 16px;
+}
+.comment-user-time{
+  margin-left: 10px;
+}
+.comment-content-rating{
+
+}
 
 </style>

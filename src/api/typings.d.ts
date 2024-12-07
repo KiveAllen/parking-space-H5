@@ -77,6 +77,19 @@ declare namespace API {
         reservationId?: number;
     };
 
+    type FeedbackDTO = {
+        commentImage?: string;
+        commentText?: string;
+        createTime?: string;
+        id?: number;
+        rating?: number;
+        spaceId?: number;
+        userId?: number;
+        reservationId?: number;
+        name?: string;
+        avatar?: string;
+    };
+
     type FeedbackAddRequest = {
         commentImage?: string;
         commentText?: string;
@@ -118,7 +131,7 @@ declare namespace API {
         optimizeCountSql?: boolean;
         orders?: OrderItem[];
         pages?: number;
-        records?: Feedback[];
+        records?: FeedbackDTO[];
         searchCount?: boolean;
         size?: number;
         total?: number;
